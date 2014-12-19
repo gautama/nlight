@@ -4,6 +4,10 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var hue = require("node-hue-api"),
+    HueApi = hue.HueApi,
+    lightState = hue.lightState;
+var SunCalc = require("suncalc");
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
@@ -55,5 +59,20 @@ app.use(function(err, req, res, next) {
     });
 });
 
+// logs
+var displayResult = function(result) {
+    console.log(JSON.stringify(result, null, 2));
+};
 
+var displayError = function(err) {
+    console.error(err);
+};
+
+// main
+nlight();
+function nlight() {
+    console.log("starting");
+}
+
+// lightLoop
 module.exports = app;
