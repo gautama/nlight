@@ -71,7 +71,24 @@ var displayError = function(err) {
 // main
 nlight();
 function nlight() {
-    console.log("starting");
+    console.log("initiated heartbeat");
+
+    var loopInterval = 1000*5;
+    setInterval(heartbeat, loopInterval);
+}
+
+function heartbeat() {
+    // Astronomical Info
+    var latitude = 47.684075;
+    var longitude = -122.176295;    
+    var times = SunCalc.getTimes(new Date(), latitude, longitude);
+    times.now = new Date().toISOString();
+
+    console.log("hb-" + times.now);    
+}
+
+function AstronomicalCalculations() {
+   console.log("times=\n" + JSON.stringify(times)); 
 }
 
 // lightLoop
