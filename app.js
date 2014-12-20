@@ -72,19 +72,30 @@ var displayError = function(err) {
 // main
 nlight();
 function nlight() {
+    initialize();
+
     console.log("initiated heartbeat");
 
     var loopInterval = 1000*5;
     setInterval(heartbeat, loopInterval);
 }
 
-function heartbeat() {
-    // Astronomical Info
-    var latitude = 47.684075;
-    var longitude = -122.176295;    
-    var times = SunCalc.getTimes(new Date(), latitude, longitude);
-    times.now = new Date().toISOString();
+function initialize() {
+    // geolocation - Seattle, WA
+    NLIGHT.geolocation = {
+        latitude : 47.684075,
+        longitude : -122.176295
+    } ;
+}
 
+function heartbeat() {
+    var now = new Date();
+
+    var times = SunCalc.getTimes(now, 
+        NLIGHT.geolocation.latitude, 
+        NLIGHT.geolocation.longitude);
+
+    times.now = now.toISOString();
     console.log("hb-" + times.now);    
 }
 
