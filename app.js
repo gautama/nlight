@@ -86,6 +86,12 @@ function initialize() {
         latitude : 47.684075,
         longitude : -122.176295
     } ;
+
+    NLIGHT.huebridge = {
+        hostname : "192.168.254.42",
+        username : "newdeveloper",
+    };
+    NLIGHT.huebridge.api = new HueApi(NLIGHT.huebridge.hostname, NLIGHT.huebridge.username);
 }
 
 function heartbeat() {
@@ -96,7 +102,9 @@ function heartbeat() {
         NLIGHT.geolocation.longitude);
 
     times.now = now.toISOString();
-    console.log("hb-" + times.now);    
+
+    NLIGHT.times = times;
+    console.log("hb-" + NLIGHT.times.now);    
 }
 
 function AstronomicalCalculations() {
