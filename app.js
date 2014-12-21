@@ -107,9 +107,5 @@ function heartbeat() {
     console.log("hb-" + NLIGHT.times.now);    
 }
 
-function AstronomicalCalculations() {
-   console.log("times=\n" + JSON.stringify(times)); 
-}
-
 // lightLoop
 module.exports = app;
