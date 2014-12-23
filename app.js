@@ -4,15 +4,12 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-var hue = require("node-hue-api"),
-    HueApi = hue.HueApi,
-    lightState = hue.lightState;
-var SunCalc = require("suncalc");
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
 
-var NLIGHT = {};
+var nlight = require('./nlight');
+
 var app = express();
 
 // view engine setup
@@ -69,59 +66,7 @@ var displayError = function(err) {
     console.error(err);
 };
 
-// main
-nlight();
-function nlight () {
-    initialize();
+var nlightComputer = nlight();
+nlightComputer.start();
 
-    console.log("initiated heartbeat");
-
-    var loopInterval = 1000*5;
-    setInterval(heartbeat, loopInterval);
-}
-
-function bulb (bulbSpec) {
-    var self = {};
-
-    self.getName = function () {
-        return bulbSpec.name;
-    }
-
-    return self;
-};
-
-
-function initialize () {
-    // geolocation - Seattle, WA
-    NLIGHT.geolocation = {
-        latitude : 47.684075,
-        longitude : -122.176295
-    };
-
-    NLIGHT.huebridge = {
-        hostname : "192.168.254.42",
-        username : "newdeveloper",
-    };
-    NLIGHT.huebridge.api = new HueApi(NLIGHT.huebridge.hostname, NLIGHT.huebridge.username);
-
-    var lobbyBulb = bulb({name: "lobby"});
-    NLIGHT.bulbs = [
-        lobbyBulb
-    ];
-}
-
-function heartbeat() {
-    var now = new Date();
-
-    var times = SunCalc.getTimes(now, 
-        NLIGHT.geolocation.latitude, 
-        NLIGHT.geolocation.longitude);
-
-    times.now = now.toISOString();
-
-    NLIGHT.times = times;
-    console.log("hb-" + NLIGHT.times.now + "---" + NLIGHT.bulbs[0].getName());    
-}
-
-// lightLoop
 module.exports = app;
