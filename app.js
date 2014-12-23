@@ -71,7 +71,7 @@ var displayError = function(err) {
 
 // main
 nlight();
-function nlight() {
+function nlight () {
     initialize();
 
     console.log("initiated heartbeat");
@@ -80,18 +80,34 @@ function nlight() {
     setInterval(heartbeat, loopInterval);
 }
 
-function initialize() {
+function bulb (bulbSpec) {
+    var self = {};
+
+    self.getName = function () {
+        return bulbSpec.name;
+    }
+
+    return self;
+};
+
+
+function initialize () {
     // geolocation - Seattle, WA
     NLIGHT.geolocation = {
         latitude : 47.684075,
         longitude : -122.176295
-    } ;
+    };
 
     NLIGHT.huebridge = {
         hostname : "192.168.254.42",
         username : "newdeveloper",
     };
     NLIGHT.huebridge.api = new HueApi(NLIGHT.huebridge.hostname, NLIGHT.huebridge.username);
+
+    var lobbyBulb = bulb({name: "lobby"});
+    NLIGHT.bulbs = [
+        lobbyBulb
+    ];
 }
 
 function heartbeat() {
@@ -104,7 +120,7 @@ function heartbeat() {
     times.now = now.toISOString();
 
     NLIGHT.times = times;
-    console.log("hb-" + NLIGHT.times.now);    
+    console.log("hb-" + NLIGHT.times.now + "---" + NLIGHT.bulbs[0].getName());    
 }
 
 // lightLoop
