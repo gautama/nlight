@@ -53,6 +53,13 @@ var nlight = function (nlightSpec) {
 		var connectionInfo;
 		var locateBridgesResponse;
 
+		function lightsCallback(err, lights) {
+		    if (err) throw err;
+
+		    nlightSpec.bulbs = lights;
+		    displayResult(nlightSpec.bulbs);
+		}
+
 		function connectCallback(err, config) {
 		    if (err) throw err;
 		    // displayResult(config);
@@ -60,6 +67,8 @@ var nlight = function (nlightSpec) {
 		    nlightSpec.huebridge.config = config;
 		    nlightSpec.huebridge.apiConnected = true;
 		    console.log("api connected to " + config.name + ". querying bulbs");
+
+			nlightSpec.huebridge.api.lights(lightsCallback);
 		};
 
 		function locateBridgesCallback(err, result) {
