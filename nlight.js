@@ -38,6 +38,8 @@ var nlight = function (nlightSpec) {
 	function bulb (bulbSpec) {
 	    var self = {};
 
+	    self.name = bulbSpec.name;
+
 	    self.getName = function () {
 	        return bulbSpec.name;
 	    }
@@ -141,10 +143,13 @@ var nlight = function (nlightSpec) {
 	    times.now = now.toISOString();
 
 	    nlightSpec.times = times;
-	    console.log(
-	    	"hb-" + nlightSpec.times.now + "---" + 
-	    	"ready=" + nlightSpec.huebridge.apiInitialized + "---" +
-	    	nlightSpec.bulbs[0].getName());    
+	    var currentState = {
+	    	time : nlightSpec.times.now,
+	    	initialized : nlightSpec.huebridge.apiInitialized,
+	    	connected : nlightSpec.huebridge.apiConnected,
+	    	bulbs : nlightSpec.bulbs
+	    };
+	    console.log("hb-" + JSON.stringify(currentState));
 	};
 	that.heartbeat = heartbeat;
 
