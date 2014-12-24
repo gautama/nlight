@@ -1,6 +1,8 @@
 var nlight = function (nlightSpec) {
 	var that = {};
 
+	var moment = require("moment");
+
 	var hue = require("node-hue-api"),
 	    HueApi = hue.HueApi,
 	    lightState = hue.lightState;
@@ -154,15 +156,15 @@ var nlight = function (nlightSpec) {
 	        nlightSpec.geolocation.longitude);
 
 	    times.now = now.toISOString();
-
 	    nlightSpec.times = times;
-	    var currentState = {
+
+	    var heartbeat = {
 	    	time : nlightSpec.times.now,
 	    	initialized : nlightSpec.huebridge.apiInitialized,
 	    	connected : nlightSpec.huebridge.apiConnected,
-	    	bulbs : nlightSpec.bulbs
+	    	// bulbs : nlightSpec.bulbs
 	    };
-	    console.log("hb-" + JSON.stringify(currentState));
+	    console.log("___heartbeat=" + JSON.stringify(heartbeat, null, 2));
 	};
 	that.heartbeat = heartbeat;
 
