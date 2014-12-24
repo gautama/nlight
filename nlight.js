@@ -14,9 +14,9 @@ var nlight = function (nlightSpec) {
 	        longitude : -122.176295
 	    },
 		huebridge : {
-	        hostname : "192.168.254.42",
 	        username : "newdeveloper",
-	        api : "undefined"
+	        api : "undefined",
+	        bridge : "undefined"
 	    },
 	    bulbs : [],
 	    times : "undefined"
@@ -44,8 +44,53 @@ var nlight = function (nlightSpec) {
 	};
 	that.bulb = bulb;
 
+	function bridge (bridgeSpec) {
+		var self = {};
+		var connectionInfo;
+		var locateBridgesResponse;
+
+		var displayBridges = function() {
+		    console.log("Hue Bridges Found: " + JSON.stringify(locateBridgesResponse));
+		};
+		self.displayBridges = displayBridges;
+
+		var displayConnectionInfo = function () {
+			console.log("accessBridge = " + JSON.stringify(connectionInfo));
+		};
+		self.displayConnectionInfo;
+
+		self.initialize = function () {
+			// --------------------------
+			// Using a promise - todo: learn it
+			// hue.locateBridges().then(displayBridges).done();
+
+			// --------------------------
+			// Using a callback
+			hue.locateBridges(function(err, result) {
+			    if (err) throw err;
+
+			    locateBridgesResponse = result;
+			    if (result.length > 0) {
+			    	connectionInfo = result[0];
+			    }
+				
+				displayConnectionInfo();
+			});	
+		};
+
+		return self;
+	};
+	that.bridge = bridge;
+
 	function initialize () {
+		// hue api
 	    nlightSpec.huebridge.api = new HueApi(nlightSpec.huebridge.hostname, nlightSpec.huebridge.username);
+
+	    // bridge
+	    var accessBridge = bridge();
+	    accessBridge.initialize();
+		    nlightSpec.huebridge.bridge = accessBridge;
+
 	    var lobbyBulb = bulb({name: "lobby"});
 	    nlightSpec.bulbs = [
 	        lobbyBulb
