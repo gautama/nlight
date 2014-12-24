@@ -17,7 +17,8 @@ var nlight = function (nlightSpec) {
 	        username : "newdeveloper",
 	        api : "undefined",
 	        bridge : "undefined",
-	        apiReady : false
+	        apiInitialized : false,
+	        apiConnected : false
 	    },
 	    bulbs : [],
 	    times : "undefined"
@@ -60,6 +61,11 @@ var nlight = function (nlightSpec) {
 		};
 		self.displayConnectionInfo;
 
+		var displayResult = function(result) {
+		    console.log(JSON.stringify(result, null, 2));
+		};		
+		self.displayResult = displayResult;
+
 		self.initialize = function () {
 			// --------------------------
 			// Using a promise - todo: learn it
@@ -73,18 +79,38 @@ var nlight = function (nlightSpec) {
 			    locateBridgesResponse = result;
 			    if (result.length > 0) {
 			    	connectionInfo = result[0];
+					displayConnectionInfo();
 
 					// hue api
+					var apiParams = {
+						hostname: connectionInfo.ipaddress,
+						username: nlightSpec.huebridge.username
+					};
+
+					console.log("initializing hueApi with " + JSON.stringify(apiParams));
 			    	var hueApi = new HueApi(
-			    		connectionInfo.hostname, 
-			    		nlightSpec.huebridge.username);
+			    		apiParams.hostname, 
+			    		apiParams.username);
 
 				    nlightSpec.huebridge.api = hueApi;
+				    nlightSpec.huebridge.apiInitialized = true;
+				    console.log("api initialized. connecting");
 
-				    nlightSpec.huebridge.apiReady = true;
+					// --------------------------
+					// Using a promise
+					// api.connect().then(displayResult).done();
+
+					// --------------------------
+					// Using a callback
+					hueApi.connect(function(err, config) {
+					    if (err) throw err;
+					    // displayResult(config);
+
+					    nlightSpec.huebridge.config = config;
+					    nlightSpec.huebridge.apiConnected = true;
+					    console.log("api connected to " + config.name);
+					});
 			    }
-				
-				displayConnectionInfo();
 			});	
 		};
 
@@ -117,7 +143,7 @@ var nlight = function (nlightSpec) {
 	    nlightSpec.times = times;
 	    console.log(
 	    	"hb-" + nlightSpec.times.now + "---" + 
-	    	"ready=" + nlightSpec.huebridge.apiReady + "---" +
+	    	"ready=" + nlightSpec.huebridge.apiInitialized + "---" +
 	    	nlightSpec.bulbs[0].getName());    
 	};
 	that.heartbeat = heartbeat;
