@@ -16,7 +16,8 @@ var nlight = function (nlightSpec) {
 		huebridge : {
 	        username : "newdeveloper",
 	        api : "undefined",
-	        bridge : "undefined"
+	        bridge : "undefined",
+	        apiReady : false
 	    },
 	    bulbs : [],
 	    times : "undefined"
@@ -72,6 +73,15 @@ var nlight = function (nlightSpec) {
 			    locateBridgesResponse = result;
 			    if (result.length > 0) {
 			    	connectionInfo = result[0];
+
+					// hue api
+			    	var hueApi = new HueApi(
+			    		connectionInfo.hostname, 
+			    		nlightSpec.huebridge.username);
+
+				    nlightSpec.huebridge.api = hueApi;
+
+				    nlightSpec.huebridge.apiReady = true;
 			    }
 				
 				displayConnectionInfo();
@@ -83,13 +93,10 @@ var nlight = function (nlightSpec) {
 	that.bridge = bridge;
 
 	function initialize () {
-		// hue api
-	    nlightSpec.huebridge.api = new HueApi(nlightSpec.huebridge.hostname, nlightSpec.huebridge.username);
-
 	    // bridge
 	    var accessBridge = bridge();
 	    accessBridge.initialize();
-		    nlightSpec.huebridge.bridge = accessBridge;
+		nlightSpec.huebridge.bridge = accessBridge;
 
 	    var lobbyBulb = bulb({name: "lobby"});
 	    nlightSpec.bulbs = [
@@ -98,7 +105,7 @@ var nlight = function (nlightSpec) {
 	};
 	that.initialize = initialize;
 
-	function heartbeat() {
+	function heartbeat () {
 	    var now = new Date();
 
 	    var times = SunCalc.getTimes(now, 
@@ -108,7 +115,10 @@ var nlight = function (nlightSpec) {
 	    times.now = now.toISOString();
 
 	    nlightSpec.times = times;
-	    console.log("hb-" + nlightSpec.times.now + "---" + nlightSpec.bulbs[0].getName());    
+	    console.log(
+	    	"hb-" + nlightSpec.times.now + "---" + 
+	    	"ready=" + nlightSpec.huebridge.apiReady + "---" +
+	    	nlightSpec.bulbs[0].getName());    
 	};
 	that.heartbeat = heartbeat;
 
