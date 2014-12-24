@@ -53,6 +53,48 @@ var nlight = function (nlightSpec) {
 		var connectionInfo;
 		var locateBridgesResponse;
 
+		function connectCallback(err, config) {
+		    if (err) throw err;
+		    // displayResult(config);
+
+		    nlightSpec.huebridge.config = config;
+		    nlightSpec.huebridge.apiConnected = true;
+		    console.log("api connected to " + config.name + ". querying bulbs");
+		};
+
+		function locateBridgesCallback(err, result) {
+		    if (err) throw err;
+
+		    locateBridgesResponse = result;
+		    if (result.length > 0) {
+		    	connectionInfo = result[0];
+				displayConnectionInfo();
+
+				// hue api
+				var apiParams = {
+					hostname: connectionInfo.ipaddress,
+					username: nlightSpec.huebridge.username
+				};
+
+				console.log("initializing hueApi with " + JSON.stringify(apiParams));
+		    	var hueApi = new HueApi(
+		    		apiParams.hostname, 
+		    		apiParams.username);
+
+			    nlightSpec.huebridge.api = hueApi;
+			    nlightSpec.huebridge.apiInitialized = true;
+			    console.log("api initialized. connecting");
+
+				// --------------------------
+				// Using a promise
+				// api.connect().then(displayResult).done();
+
+				// --------------------------
+				// Using a callback
+				hueApi.connect(connectCallback);
+		    }
+		};
+
 		var displayBridges = function() {
 		    console.log("Hue Bridges Found: " + JSON.stringify(locateBridgesResponse));
 		};
@@ -75,45 +117,7 @@ var nlight = function (nlightSpec) {
 
 			// --------------------------
 			// Using a callback
-			hue.locateBridges(function(err, result) {
-			    if (err) throw err;
-
-			    locateBridgesResponse = result;
-			    if (result.length > 0) {
-			    	connectionInfo = result[0];
-					displayConnectionInfo();
-
-					// hue api
-					var apiParams = {
-						hostname: connectionInfo.ipaddress,
-						username: nlightSpec.huebridge.username
-					};
-
-					console.log("initializing hueApi with " + JSON.stringify(apiParams));
-			    	var hueApi = new HueApi(
-			    		apiParams.hostname, 
-			    		apiParams.username);
-
-				    nlightSpec.huebridge.api = hueApi;
-				    nlightSpec.huebridge.apiInitialized = true;
-				    console.log("api initialized. connecting");
-
-					// --------------------------
-					// Using a promise
-					// api.connect().then(displayResult).done();
-
-					// --------------------------
-					// Using a callback
-					hueApi.connect(function(err, config) {
-					    if (err) throw err;
-					    // displayResult(config);
-
-					    nlightSpec.huebridge.config = config;
-					    nlightSpec.huebridge.apiConnected = true;
-					    console.log("api connected to " + config.name);
-					});
-			    }
-			});	
+			hue.locateBridges(locateBridgesCallback);	
 		};
 
 		return self;
