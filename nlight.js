@@ -27,6 +27,24 @@ var nlight = function (nlightSpec) {
 	};
 
 	nlightSpec = nlightSpec || defaultSpec;
+
+	var astroMoments = [
+	    "nadir",
+	    "nightEnd",
+	    "nauticalDawn",
+	    "dawn",
+	    "sunrise",
+	    "sunriseEnd",
+	    "goldenHourEnd",
+	    "solarNoon",
+	    "goldenHour",
+	    "sunsetStart",
+	    "sunset",
+	    "dusk",
+	    "nauticalDusk",
+	    "night"
+	];
+
 	function start () {
 	    var loopInterval = 1000*5;
 
@@ -150,18 +168,31 @@ var nlight = function (nlightSpec) {
 
 	function heartbeat () {
 	    var now = new Date();
+	    var nextAstroMoment;
+	    var nextAstroMomentIndex;
 
 	    var times = SunCalc.getTimes(now, 
 	        nlightSpec.geolocation.latitude, 
 	        nlightSpec.geolocation.longitude);
 
-	    times.now = now.toISOString();
 	    nlightSpec.times = times;
 
+	    for (var i = 0; i < astroMoments.length; i++) {
+	    	if (times[astroMoments[i]] > now) {
+	    		nextAstroMoment = times[astroMoments[i]];
+	    		nextAstroMomentIndex = i;
+	    		break;
+	    	}
+	    }
+
 	    var heartbeat = {
-	    	time : nlightSpec.times.now,
+	    	// time : nlightSpec.times,
+	    	nextAstroEvent : {
+	    		name: astroMoments[nextAstroMomentIndex],
+	    		date: nextAstroMoment
+	    	},
 	    	initialized : nlightSpec.huebridge.apiInitialized,
-	    	connected : nlightSpec.huebridge.apiConnected,
+	    	connected : nlightSpec.huebridge.apiConnected
 	    	// bulbs : nlightSpec.bulbs
 	    };
 	    console.log("___heartbeat=" + JSON.stringify(heartbeat, null, 2));
