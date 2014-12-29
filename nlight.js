@@ -177,25 +177,33 @@ var nlight = function (nlightSpec) {
 
 	    nlightSpec.times = times;
 
-	    for (var i = 0; i < astroMoments.length; i++) {
-	    	if (times[astroMoments[i]] > now) {
-	    		nextAstroMoment = times[astroMoments[i]];
-	    		nextAstroMomentIndex = i;
-	    		break;
+	    // verbose
+	    // astroMoments.forEach(function (astroMoment, idx) {
+	    // 	console.log(astroMoments[idx] + " @ " + nlightSpec.times[astroMoments[idx]]);
+	    // });
+
+	    astroMoments.some(function (astroMoment, idx) {
+	    	if (times[astroMoment] > now) {
+	    		nextAstroMomentIndex = idx;
+	    		return true;
 	    	}
-	    }
+
+	    	return false;
+	    });
 
 	    var heartbeat = {
-	    	// time : nlightSpec.times,
+	    	now : now,
+	    	initialized : nlightSpec.huebridge.apiInitialized,
+	    	connected : nlightSpec.huebridge.apiConnected,
 	    	nextAstroEvent : {
 	    		name: astroMoments[nextAstroMomentIndex],
-	    		date: nextAstroMoment
+	    		date: times[astroMoments[nextAstroMomentIndex]]
 	    	},
-	    	initialized : nlightSpec.huebridge.apiInitialized,
-	    	connected : nlightSpec.huebridge.apiConnected
+	    	// time : nlightSpec.times,
 	    	// bulbs : nlightSpec.bulbs
 	    };
 	    console.log("___heartbeat=" + JSON.stringify(heartbeat, null, 2));
+
 	};
 	that.heartbeat = heartbeat;
 
