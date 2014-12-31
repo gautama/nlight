@@ -29,20 +29,20 @@ var nlight = function (nlightSpec) {
 	nlightSpec = nlightSpec || defaultSpec;
 
 	var astroMoments = [
-	    "nadir",
-	    "nightEnd",
-	    "nauticalDawn",
-	    "dawn",
-	    "sunrise",
-	    "sunriseEnd",
-	    "goldenHourEnd",
-	    "solarNoon",
-	    "goldenHour",
-	    "sunsetStart",
-	    "sunset",
-	    "dusk",
-	    "nauticalDusk",
-	    "night"
+	    {name: "nadir"},
+	    {name: "nightEnd"},
+	    {name: "nauticalDawn"},
+	    {name: "dawn"},
+	    {name: "sunrise"},
+	    {name: "sunriseEnd"},
+	    {name: "goldenHourEnd"},
+	    {name: "solarNoon"},
+	    {name: "goldenHour"},
+	    {name: "sunsetStart"},
+	    {name: "sunset"},
+	    {name: "dusk"},
+	    {name: "nauticalDusk"},
+	    {name: "night"}
 	];
 
 	function start () {
@@ -178,12 +178,13 @@ var nlight = function (nlightSpec) {
 	    nlightSpec.times = times;
 
 	    // verbose
-	    // astroMoments.forEach(function (astroMoment, idx) {
-	    // 	console.log(astroMoments[idx] + " @ " + nlightSpec.times[astroMoments[idx]]);
-	    // });
+	    astroMoments.forEach(function (astroMoment, idx) {
+	    	console.log(astroMoment.name + " @ " + nlightSpec.times[astroMoment.name]);
+	    });
 
 	    astroMoments.some(function (astroMoment, idx) {
-	    	if (times[astroMoment] > now) {
+	    	if (times[astroMoment.name] > now) {
+	    		nextAstroMoment = astroMoment;
 	    		nextAstroMomentIndex = idx;
 	    		return true;
 	    	}
@@ -196,8 +197,8 @@ var nlight = function (nlightSpec) {
 	    	initialized : nlightSpec.huebridge.apiInitialized,
 	    	connected : nlightSpec.huebridge.apiConnected,
 	    	nextAstroEvent : {
-	    		name: astroMoments[nextAstroMomentIndex],
-	    		date: times[astroMoments[nextAstroMomentIndex]]
+	    		name: nextAstroMoment.name,
+	    		date: times[nextAstroMoment.name]
 	    	},
 	    	// time : nlightSpec.times,
 	    	// bulbs : nlightSpec.bulbs
