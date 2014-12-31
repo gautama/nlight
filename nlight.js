@@ -42,7 +42,8 @@ var nlight = function (nlightSpec) {
 	    {name: "sunset"},
 	    {name: "dusk"},
 	    {name: "nauticalDusk"},
-	    {name: "night"}
+	    {name: "night"},
+	    {name: "midnight"}
 	];
 
 	astroMoments.forEach(function(astroMoment, idx) {
@@ -159,8 +160,8 @@ var nlight = function (nlightSpec) {
 
 	function initialize () {
 	    // bridge
-	    var accessBridge = bridge();
-	    accessBridge.initialize();
+		var accessBridge = bridge();
+	 	accessBridge.initialize();
 		nlightSpec.huebridge.bridge = accessBridge;
 
 	    var lobbyBulb = bulb({name: "lobby"});
@@ -170,6 +171,11 @@ var nlight = function (nlightSpec) {
 	};
 	that.initialize = initialize;
 
+	function astroMomentCallback(astroMoment, idx) {
+		console.log("astroMoment with name " + astroMoment.name + "at index " + idx + " fired");
+		astroMoment.callbackRegistered = false;
+	}
+
 	function heartbeat () {
 	    var now = new Date();
 	    var nextAstroMoment;
@@ -178,6 +184,10 @@ var nlight = function (nlightSpec) {
 	    var times = SunCalc.getTimes(now, 
 	        nlightSpec.geolocation.latitude, 
 	        nlightSpec.geolocation.longitude);
+
+	    var midnight = new Date();
+	    midnight.setHours(24,0,0,0);
+	    times.midnight = midnight;
 
 	    nlightSpec.times = times;
 
@@ -195,6 +205,21 @@ var nlight = function (nlightSpec) {
 
 	    	return false;
 	    });
+
+	    nextAstroMoment = nextAstroMoment || {};
+
+	    if (nextAstroMoment.callbackRegistered == false) {
+	    	nextAstroMoment.callbackRegistered = true;
+
+	    	var timeout = nlightSpec.times[nextAstroMoment.name] - now;
+	    	setTimeout(function(currentMoment, idx) {
+	    		console.log("callback registered for " + currentMoment.name + " in " + timeout + " ms");
+	    		return function() { 
+	    			astroMomentCallback(currentMoment, idx); 
+	    		}
+	    	}(nextAstroMoment, nextAstroMomentIndex), 
+	    	timeout);
+	    }
 
 	    var heartbeat = {
 	    	now : now,
