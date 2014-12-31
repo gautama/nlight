@@ -45,6 +45,10 @@ var nlight = function (nlightSpec) {
 	    {name: "night"}
 	];
 
+	astroMoments.forEach(function(astroMoment, idx) {
+		astroMoment.callbackRegistered = false;
+	});
+
 	function start () {
 	    var loopInterval = 1000*5;
 
