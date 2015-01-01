@@ -25,6 +25,8 @@ var nlight = function (nlightSpec) {
 	    times : "undefined"
 	};
 
+	var firstHeartBeat = true;
+
 	nlightSpec = nlightSpec || defaultSpec;
 
 	var astroMoments = [
@@ -219,6 +221,10 @@ var nlight = function (nlightSpec) {
 	        nlightSpec.geolocation.latitude, 
 	        nlightSpec.geolocation.longitude);
 
+	    var zeros = new Date();
+	    zeros.setHours(0,0,0,0);
+	    times.zeros = zeros;
+
 	    var midnight = new Date();
 	    midnight.setHours(24,0,0,0);
 	    times.midnight = midnight;
@@ -266,8 +272,15 @@ var nlight = function (nlightSpec) {
 	    	// time : nlightSpec.times,
 	    	// bulbs : nlightSpec.bulbs
 	    };
-	    console.log("___heartbeat=" + JSON.stringify(heartbeat, null, 2));
 
+	    if (firstHeartBeat == true) {
+	    	var prevAstroMoment = astroMoments[nextAstroMomentIndex - 1];
+	    	prevAstroMoment = prevAstroMoment || {};
+
+	    	astroMomentCallback(prevAstroMoment, nextAstroMomentIndex - 1)
+	    	firstHeartBeat = false;
+	    }
+	    console.log("___heartbeat=" + JSON.stringify(heartbeat, null, 2));
 	};
 	that.heartbeat = heartbeat;
 
