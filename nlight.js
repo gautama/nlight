@@ -6,7 +6,9 @@ var nlight = function (nlightSpec) {
 	var hue = require("node-hue-api"),
 	    HueApi = hue.HueApi,
 	    lightState = hue.lightState;
+	var hueApi;
 	var SunCalc = require("suncalc");
+
 
 	var defaultSpec = {
 		// geolocation - Seattle, WA
@@ -30,6 +32,7 @@ var nlight = function (nlightSpec) {
 	nlightSpec = nlightSpec || defaultSpec;
 
 	var astroMoments = [
+		{name: "zeros"},
 	    {name: "nadir"},
 	    {name: "nightEnd"},
 	    {name: "nauticalDawn"},
@@ -63,8 +66,47 @@ var nlight = function (nlightSpec) {
 
 	function bulb (bulbSpec) {
 
+		var bulbStates = {
+			off: lightState.create().off(),
+			on100: lightState.create().on().brightness(100),
+			on90: lightState.create().on().brightness(90),
+			on80: lightState.create().on().brightness(80),
+			on70: lightState.create().on().brightness(70),
+			on60: lightState.create().on().brightness(60),
+			on50: lightState.create().on().brightness(50),
+			on40: lightState.create().on().brightness(40),
+			on30: lightState.create().on().brightness(30),
+			on20: lightState.create().on().brightness(20),
+			on10: lightState.create().on().brightness(10),
+			on0: lightState.create().on().brightness(0)
+		};
+
+		var actions = {
+			"zeros" : bulbStates.off,
+		    "nadir" : bulbStates.off,
+		    "nightEnd" : bulbStates.off,
+		    "nauticalDawn" : bulbStates.on20,
+		    "dawn" : bulbStates.on30,
+		    "sunrise" : bulbStates.on40,
+		    "sunriseEnd" : bulbStates.on50,
+		    "goldenHourEnd" : bulbStates.off,
+		    "solarNoon" : bulbStates.off,
+		    "goldenHour" : bulbStates.off,
+		    "sunsetStart" : bulbStates.on40,
+		    "sunset" : bulbStates.on40,
+		    "dusk" : bulbStates.on60,
+		    "nauticalDusk" : bulbStates.on70,
+		    "night" : bulbStates.on80,
+		    "midnight" : bulbStates.off
+		};
+
 		function astroMomentEvent (astroMoment) {
-			console.log(self.id + "-" + self.name + " responded to " + astroMoment.name);
+			console.log(self.id + "-" + self.name + " responded to " + astroMoment.name + " with action:");
+			console.log(JSON.stringify(actions[astroMoment.name], null, 2));
+
+			hueApi.setLightState(self.id, actions[astroMoment.name], function (err, result) {
+				console.log("setLightStateCallback " + self.id + "-" + self.name + "err: " + err + " result: " + result);
+			})
 		}
 
 		function subscribeToAstroMoments() {
@@ -137,7 +179,7 @@ var nlight = function (nlightSpec) {
 				};
 
 				console.log("initializing hueApi with " + JSON.stringify(apiParams));
-		    	var hueApi = new HueApi(
+		    	hueApi = new HueApi(
 		    		apiParams.hostname, 
 		    		apiParams.username);
 
