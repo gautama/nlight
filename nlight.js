@@ -77,10 +77,10 @@ var nlight = function (nlightSpec) {
 		var connectionInfo;
 		var locateBridgesResponse;
 
-		function lightsCallback(err, lights) {
+		function lightsCallback(err, lightsResponse) {
 		    if (err) throw err;
 
-		    nlightSpec.bulbs = lights;
+		    nlightSpec.bulbs = lightsResponse.lights;
 		    displayResult(nlightSpec.bulbs);
 		}
 
@@ -163,18 +163,13 @@ var nlight = function (nlightSpec) {
 	 	accessBridge.initialize();
 		nlightSpec.huebridge.bridge = accessBridge;
 
-	    var lobbyBulb = bulb({name: "lobby"});
-	    nlightSpec.bulbs = [
-	        lobbyBulb
-	    ];
-
 	    // events test
 	    var subscription = events.subscribe('/nlight/initialize', function(obj) {
 	    	console.log(JSON.stringify(obj, null, 2));
 	    });
 
 	    events.publish('/nlight/initialize', nlightSpec);
-	    
+
 	    subscription.remove();
 	};
 	that.initialize = initialize;
