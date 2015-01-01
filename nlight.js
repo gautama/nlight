@@ -1,12 +1,11 @@
 var nlight = function (nlightSpec) {
 	var that = {};
 
+	var events = require("./events");
 	var moment = require("moment");
-
 	var hue = require("node-hue-api"),
 	    HueApi = hue.HueApi,
 	    lightState = hue.lightState;
-
 	var SunCalc = require("suncalc");
 
 	var defaultSpec = {
@@ -168,6 +167,15 @@ var nlight = function (nlightSpec) {
 	    nlightSpec.bulbs = [
 	        lobbyBulb
 	    ];
+
+	    // events test
+	    var subscription = events.subscribe('/nlight/initialize', function(obj) {
+	    	console.log(JSON.stringify(obj, null, 2));
+	    });
+
+	    events.publish('/nlight/initialize', nlightSpec);
+	    
+	    subscription.remove();
 	};
 	that.initialize = initialize;
 
