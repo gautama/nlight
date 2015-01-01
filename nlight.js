@@ -60,13 +60,34 @@ var nlight = function (nlightSpec) {
 	that.start = start;
 
 	function bulb (bulbSpec) {
+
+		function astroMomentEvent (astroMoment) {
+			console.log(self.id + "-" + self.name + " responded to " + astroMoment.name);
+		}
+
+		function subscribeToAstroMoments() {
+			astroMoments.forEach(function (astroMoment, idx) {
+				console.log(self.id + "-" + self.name + " subscribing to " + astroMoment.name);
+				events.subscribe(astroMomentEventName(astroMoment), astroMomentEvent);
+			});
+		}
+
 	    var self = {};
 
 	    self.name = bulbSpec.name;
-
 	    self.getName = function () {
 	        return bulbSpec.name;
 	    }
+
+	    self.id = bulbSpec.id;
+	    self.getId = function () {
+	    	return bulbSpec.id;
+	    }
+
+	    self.initialize = function () {
+	    	subscribeToAstroMoments();
+	    }
+	    self.initialize();
 
 	    return self;
 	};
@@ -80,7 +101,11 @@ var nlight = function (nlightSpec) {
 		function lightsCallback(err, lightsResponse) {
 		    if (err) throw err;
 
-		    nlightSpec.bulbs = lightsResponse.lights;
+		    lightsResponse.lights.forEach(function (bulbSpec, idx) {
+		    	var naturalBulb = bulb(bulbSpec);
+		    	nlightSpec.bulbs.push(naturalBulb);
+		    });
+
 		    displayResult(nlightSpec.bulbs);
 		}
 
@@ -169,14 +194,20 @@ var nlight = function (nlightSpec) {
 	    });
 
 	    events.publish('/nlight/initialize', nlightSpec);
-
 	    subscription.remove();
 	};
 	that.initialize = initialize;
 
+	function astroMomentEventName(astroMoment) {
+		return "/astro/" + astroMoment.name;
+	}
+
 	function astroMomentCallback(astroMoment, idx) {
-		console.log("astroMoment with name " + astroMoment.name + "at index " + idx + " fired");
+		console.log("astroMoment with name " + astroMoment.name + "at index " + idx + " fired at time " + nlightSpec.times[astroMoment.name]);
 		astroMoment.callbackRegistered = false;
+
+		// console.log(astroMoment.name + " @ " + nlightSpec.times[astroMoment.name]);
+		events.publish(astroMomentEventName(astroMoment), astroMoment);
 	}
 
 	function heartbeat () {
