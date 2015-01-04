@@ -2,13 +2,13 @@ var nlight = function (nlightSpec) {
 	var that = {};
 
 	var events = require("./events");
+	var dates = require("./dates");
 	var moment = require("moment");
 	var hue = require("node-hue-api"),
 	    HueApi = hue.HueApi,
 	    lightState = hue.lightState;
 	var hueApi;
 	var SunCalc = require("suncalc");
-
 
 	var defaultSpec = {
 		// geolocation - Seattle, WA
@@ -133,19 +133,24 @@ var nlight = function (nlightSpec) {
 
 		};
 
-		function astroMomentEvent (astroMoment) {
-			console.log(self.id + "-" + self.name + " responded to " + astroMoment.name + " with action:");
-			console.log(JSON.stringify(actions[astroMoment.name], null, 2));
+		function momentEvent (cMoment) {
+			console.log(self.id + "-" + self.name + " responded to " + cMoment.name + " with action:");
+			console.log(JSON.stringify(actions[cMoment.name], null, 2));
 
-			hueApi.setLightState(self.id, actions[astroMoment.name], function (err, result) {
+			hueApi.setLightState(self.id, actions[cMoment.name], function (err, result) {
 				console.log("setLightStateCallback " + self.id + "-" + self.name + "err: " + err + " result: " + result);
 			})
 		}
 
-		function subscribeToAstroMoments() {
+		function subscribeToMoments() {
 			astroMoments.forEach(function (astroMoment, idx) {
 				console.log(self.id + "-" + self.name + " subscribing to " + astroMoment.name);
-				events.subscribe(astroMomentEventName(astroMoment), astroMomentEvent);
+				events.subscribe(momentEventName(astroMoment), momentEvent);
+			});
+			
+			windDownMoments.forEach(function (wdMoment, idx) {
+				console.log(self.id + "-" + self.name + " subscribing to " + wdMoment.name);
+				events.subscribe(momentEventName(wdMoment), momentEvent);
 			});
 		}
 
@@ -162,7 +167,7 @@ var nlight = function (nlightSpec) {
 	    }
 
 	    self.initialize = function () {
-	    	subscribeToAstroMoments();
+	    	subscribeToMoments();
 	    }
 	    self.initialize();
 
@@ -275,16 +280,16 @@ var nlight = function (nlightSpec) {
 	};
 	that.initialize = initialize;
 
-	function astroMomentEventName(astroMoment) {
-		return "/astro/" + astroMoment.name;
+	function momentEventName(cMoment) {
+		return "/astro/" + cMoment.name;
 	}
 
-	function astroMomentCallback(astroMoment, idx) {
-		console.log("astroMoment with name " + astroMoment.name + "at index " + idx + " fired at time " + nlightSpec.times[astroMoment.name]);
-		astroMoment.callbackRegistered = false;
+	function momentCallback(cMoment) {
+		console.log("moment with name " + cMoment.name + " fired at time " + nlightSpec.times[cMoment.name]);
+		cMoment.callbackRegistered = false;
 
 		// console.log(astroMoment.name + " @ " + nlightSpec.times[astroMoment.name]);
-		events.publish(astroMomentEventName(astroMoment), astroMoment);
+		events.publish(momentEventName(cMoment), cMoment);
 	}
 
 	function setWinddownTimes(times) {
@@ -349,16 +354,34 @@ var nlight = function (nlightSpec) {
 	    	console.log(wdMoment.name + " @ " + nlightSpec.times[wdMoment.name]);
 	    })
 
-	    if (nextAstroMoment.callbackRegistered == false) {
-	    	nextAstroMoment.callbackRegistered = true;
+	    windDownMoments.some(function (wdMoment, idx) {
+	    	if (times[wdMoment.name] > now) {
+	    		nextWinddownMoment = wdMoment;
+	    		nextWinddownMomentIndex = idx;
+	    		return true;
+	    	}
+	    	return false;
+	    });
+
+	    nextWinddownMoment = nextWinddownMoment || {};
+
+		var nextMoment;	    
+	    if (dates.compare(times[nextWinddownMoment.name], times[nextAstroMoment.name]) < 0) {
+	    	nextMoment = nextWinddownMoment;
+	    } else {
+	    	nextMoment = nextAstroMoment;
+	    }
+
+	    if (nextMoment.callbackRegistered == false) {
+	    	nextMoment.callbackRegistered = true;
 
 	    	var timeout = nlightSpec.times[nextAstroMoment.name] - now;
-	    	setTimeout(function(currentMoment, idx) {
+	    	setTimeout(function(currentMoment) {
 	    		console.log("callback registered for " + currentMoment.name + " in " + timeout + " ms");
 	    		return function() { 
-	    			astroMomentCallback(currentMoment, idx); 
+	    			momentCallback(currentMoment); 
 	    		}
-	    	}(nextAstroMoment, nextAstroMomentIndex), 
+	    	}(nextMoment), 
 	    	timeout);
 	    }
 
@@ -378,7 +401,15 @@ var nlight = function (nlightSpec) {
 	    	var prevAstroMoment = astroMoments[nextAstroMomentIndex - 1];
 	    	prevAstroMoment = prevAstroMoment || {};
 
-	    	astroMomentCallback(prevAstroMoment, nextAstroMomentIndex - 1)
+	    	var prevWdMoment = windDownMoments[nextWinddownMomentIndex - 1];
+	    	prevWdMoment = prevWdMoment || {};
+
+	    	var prevMoment = prevAstroMoment;
+	    	if (dates.compare(times[prevAstroMoment.name], times[prevWdMoment.name]) < 0) {
+	    		prevMoment = prevWdMoment;
+	    	}
+
+	    	momentCallback(prevMoment);
 	    	firstHeartBeat = false;
 	    }
 	    console.log("___heartbeat=" + JSON.stringify(heartbeat, null, 2));
