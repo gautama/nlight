@@ -51,10 +51,22 @@ var nlight = function (nlightSpec) {
 	];
 
 	var windDownMoments = [
-		{name: "postDinner" }, // 9:30 pm - 65
-		{name: "kidsInBed" },  // 10:00 pm - 50
-		{name: "cruising" }, // 11:00 pm - 35
-		{name: "windDown" } // 11:30 pm - 20
+		{
+			name: "postDinner", // 9:30 pm - 65
+			momentParams: [21, 30, 0, 0]
+		}, 
+		{
+			name: "kidsInBed", // 10:00 pm - 50
+			momentParams: [22, 0, 0, 0]
+		}, 
+		{
+			name: "cruising", // 11:00 pm - 35
+			momentParams: [23, 00, 0, 0]
+		}, 
+		{
+			name: "windDown", // 11:30 pm - 20
+			momentParams: [23, 30, 0, 0]
+		} 
 	];
 
 	astroMoments.forEach(function(astroMoment, idx) {
@@ -275,25 +287,44 @@ var nlight = function (nlightSpec) {
 		events.publish(astroMomentEventName(astroMoment), astroMoment);
 	}
 
+	function setWinddownTimes(times) {
+		windDownMoments.forEach(function (wdMoment, idx) {
+			times[wdMoment.name] = new Date();
+			times[wdMoment.name].setHours.apply(times[wdMoment.name], wdMoment.momentParams);
+		});
+	}
+
 	function heartbeat () {
 	    var now = new Date();
 	    var nextAstroMoment;
 	    var nextAstroMomentIndex;
 
+	    var nextWinddownMoment;
+	    var nextWinddownMomentIndex;
+
+	    // set this days times from various sources
+
+	    // astronomical times
 	    var times = SunCalc.getTimes(now, 
 	        nlightSpec.geolocation.latitude, 
 	        nlightSpec.geolocation.longitude);
 
+	    // start at 00:00:00
 	    var zeros = new Date();
 	    zeros.setHours(0,0,0,0);
 	    times.zeros = zeros;
 
+	    // end at 00:00:00 the next day
 	    var midnight = new Date();
 	    midnight.setHours(24,0,0,0);
 	    times.midnight = midnight;
 
+	    // family winds down between night and midnight
+	    setWinddownTimes(times);
+
 	    nlightSpec.times = times;
 
+	    // what is the next astro moment 
 	    // verbose
 	    astroMoments.forEach(function (astroMoment, idx) {
 	    	console.log(astroMoment.name + " @ " + nlightSpec.times[astroMoment.name]);
@@ -310,6 +341,13 @@ var nlight = function (nlightSpec) {
 	    });
 
 	    nextAstroMoment = nextAstroMoment || {};
+
+	    // what is the next winddown moment
+	    // verbose
+	    console.log("");
+	    windDownMoments.forEach(function (wdMoment, idx) {
+	    	console.log(wdMoment.name + " @ " + nlightSpec.times[wdMoment.name]);
+	    })
 
 	    if (nextAstroMoment.callbackRegistered == false) {
 	    	nextAstroMoment.callbackRegistered = true;
