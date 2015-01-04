@@ -50,8 +50,19 @@ var nlight = function (nlightSpec) {
 	    {name: "midnight"}
 	];
 
+	var windDownMoments = [
+		{name: "postDinner" }, // 9:30 pm - 65
+		{name: "kidsInBed" },  // 10:00 pm - 50
+		{name: "cruising" }, // 11:00 pm - 35
+		{name: "windDown" } // 11:30 pm - 20
+	];
+
 	astroMoments.forEach(function(astroMoment, idx) {
 		astroMoment.callbackRegistered = false;
+	});
+
+	windDownMoments.forEach(function(windDownMoment, idx) {
+		windDownMoment.callbackRegistered = false;
 	});
 
 	function start () {
@@ -72,9 +83,11 @@ var nlight = function (nlightSpec) {
 			on90: lightState.create().on().brightness(90),
 			on80: lightState.create().on().brightness(80),
 			on70: lightState.create().on().brightness(70),
+			on65: lightState.create().on().brightness(65),
 			on60: lightState.create().on().brightness(60),
 			on50: lightState.create().on().brightness(50),
 			on40: lightState.create().on().brightness(40),
+			on35: lightState.create().on().brightness(35),
 			on30: lightState.create().on().brightness(30),
 			on20: lightState.create().on().brightness(20),
 			on10: lightState.create().on().brightness(10),
@@ -82,6 +95,7 @@ var nlight = function (nlightSpec) {
 		};
 
 		var actions = {
+			// earth cycle
 			"zeros" : bulbStates.off,
 		    "nadir" : bulbStates.off,
 		    "nightEnd" : bulbStates.off,
@@ -97,7 +111,14 @@ var nlight = function (nlightSpec) {
 		    "dusk" : bulbStates.on60,
 		    "nauticalDusk" : bulbStates.on70,
 		    "night" : bulbStates.on80,
-		    "midnight" : bulbStates.off
+		    "midnight" : bulbStates.off,
+
+		    // family cycle past night
+			"postDinner" : bulbStates.on65, // 9:30 pm - 65
+			"kidsInBed" : bulbStates.on50,  // 10:00 pm - 50
+			"cruising" : bulbStates.on35, // 11:00 pm - 35
+			"windDown" : bulbStates.on20 // 11:30 pm - 20
+
 		};
 
 		function astroMomentEvent (astroMoment) {
