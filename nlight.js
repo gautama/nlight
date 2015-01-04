@@ -147,7 +147,7 @@ var nlight = function (nlightSpec) {
 				console.log(self.id + "-" + self.name + " subscribing to " + astroMoment.name);
 				events.subscribe(momentEventName(astroMoment), momentEvent);
 			});
-			
+
 			windDownMoments.forEach(function (wdMoment, idx) {
 				console.log(self.id + "-" + self.name + " subscribing to " + wdMoment.name);
 				events.subscribe(momentEventName(wdMoment), momentEvent);
@@ -366,7 +366,9 @@ var nlight = function (nlightSpec) {
 	    nextWinddownMoment = nextWinddownMoment || {};
 
 		var nextMoment;	    
-	    if (dates.compare(times[nextWinddownMoment.name], times[nextAstroMoment.name]) < 0) {
+	    if (nextWinddownMoment &&
+	    	nextWinddownMoment.name &&
+	    	dates.compare(times[nextWinddownMoment.name], times[nextAstroMoment.name]) < 0) {
 	    	nextMoment = nextWinddownMoment;
 	    } else {
 	    	nextMoment = nextAstroMoment;
@@ -405,7 +407,9 @@ var nlight = function (nlightSpec) {
 	    	prevWdMoment = prevWdMoment || {};
 
 	    	var prevMoment = prevAstroMoment;
-	    	if (dates.compare(times[prevAstroMoment.name], times[prevWdMoment.name]) < 0) {
+	    	if (prevWdMoment && 
+	    		prevWdMoment.names && 
+	    		dates.compare(times[prevAstroMoment.name], times[prevWdMoment.name]) < 0) {
 	    		prevMoment = prevWdMoment;
 	    	}
 
