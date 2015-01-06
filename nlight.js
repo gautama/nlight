@@ -408,11 +408,12 @@ var nlight = function (nlightSpec) {
 
 	    	var prevMoment = prevAstroMoment;
 	    	if (prevWdMoment && 
-	    		prevWdMoment.names && 
+	    		prevWdMoment.name && 
 	    		dates.compare(times[prevAstroMoment.name], times[prevWdMoment.name]) < 0) {
 	    		prevMoment = prevWdMoment;
 	    	}
-
+		
+		console.log("first heartbeat, callingBack for previous moment: " + prevMoment.name);
 	    	momentCallback(prevMoment);
 	    	firstHeartBeat = false;
 	    }
