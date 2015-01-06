@@ -391,10 +391,9 @@ var nlight = function (nlightSpec) {
 	    	now : now,
 	    	initialized : nlightSpec.huebridge.apiInitialized,
 	    	connected : nlightSpec.huebridge.apiConnected,
-	    	nextAstroEvent : {
-	    		name: nextAstroMoment.name,
-	    		date: times[nextAstroMoment.name]
-	    	},
+	    	nextMoment : nextMoment,
+	    	nextAstroMoment : nextAstroMoment,
+	    	nextWinddownMoment : nextWinddownMoment
 	    	// time : nlightSpec.times,
 	    	// bulbs : nlightSpec.bulbs
 	    };
