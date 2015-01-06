@@ -377,7 +377,7 @@ var nlight = function (nlightSpec) {
 	    if (nextMoment.callbackRegistered == false) {
 	    	nextMoment.callbackRegistered = true;
 
-	    	var timeout = nlightSpec.times[nextAstroMoment.name] - now;
+	    	var timeout = nlightSpec.times[nextMoment.name] - now;
 	    	setTimeout(function(currentMoment) {
 	    		console.log("callback registered for " + currentMoment.name + " in " + timeout + " ms");
 	    		return function() { 
