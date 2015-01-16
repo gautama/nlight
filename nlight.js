@@ -117,7 +117,7 @@ var nlight = function (nlightSpec) {
 		    "sunriseEnd" : bulbStates.on50,
 		    "goldenHourEnd" : bulbStates.off,
 		    "solarNoon" : bulbStates.off,
-		    "goldenHour" : bulbStates.off,
+		    "goldenHour" : bulbStates.on40,
 		    "sunsetStart" : bulbStates.on40,
 		    "sunset" : bulbStates.on40,
 		    "dusk" : bulbStates.on60,
