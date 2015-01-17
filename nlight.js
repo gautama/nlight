@@ -103,6 +103,7 @@ var nlight = function (nlightSpec) {
 			on30: lightState.create().on().brightness(30),
 			on20: lightState.create().on().brightness(20),
 			on10: lightState.create().on().brightness(10),
+			on5: lightState.create().on().brightness(5),
 			on0: lightState.create().on().brightness(0)
 		};
 
@@ -126,11 +127,10 @@ var nlight = function (nlightSpec) {
 		    "midnight" : bulbStates.off,
 
 		    // family cycle past night
-			"postDinner" : bulbStates.on65, // 9:30 pm - 65
-			"kidsInBed" : bulbStates.on50,  // 10:00 pm - 50
-			"cruising" : bulbStates.on35, // 11:00 pm - 35
-			"windDown" : bulbStates.on20 // 11:30 pm - 20
-
+			"postDinner" : bulbStates.on40, // 9:30 pm
+			"kidsInBed" : bulbStates.on20,  // 10:00 pm
+			"cruising" : bulbStates.on10, // 11:00 pm
+			"windDown" : bulbStates.on5 // 11:30 pm
 		};
 
 		function momentEvent (cMoment) {
