@@ -162,17 +162,15 @@ var nlight = function (nlightSpec) {
 		function momentEvent (cMoment) {
 			console.log(self.id + "-" + self.name + " responded to " + cMoment.name + " with action:");
 
+			var action = livingActions[cMoment.name];
 			if (self.name === 'bedroom') {
-				console.log(JSON.stringify(sleepingActions[cMoment.name], null, 2));
-				hueApi.setLightState(self.id, sleepingActions[cMoment.name], function (err, result) {
-					console.log("setLightStateCallback " + self.id + "-" + self.name + "err: " + err + " result: " + result);
-				});				
-			} else {
-				console.log(JSON.stringify(livingActions[cMoment.name], null, 2));
-				hueApi.setLightState(self.id, livingActions[cMoment.name], function (err, result) {
-					console.log("setLightStateCallback " + self.id + "-" + self.name + "err: " + err + " result: " + result);
-				});				
+				action = sleepingActions[cMoment.name];
 			}
+
+			console.log(JSON.stringify(action, null, 2));
+			hueApi.setLightState(self.id, action, function (err, result) {
+				console.log("setLightStateCallback " + self.id + "-" + self.name + "err: " + err + " result: " + result);
+			});				
 		}
 
 		function subscribeToMoments() {
