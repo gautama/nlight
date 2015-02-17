@@ -107,7 +107,7 @@ var nlight = function (nlightSpec) {
 			on0: lightState.create().on().brightness(0)
 		};
 
-		var actions = {
+		var livingActions = {
 			// earth cycle
 			"zeros" : bulbStates.off,
 		    "nadir" : bulbStates.off,
@@ -133,13 +133,44 @@ var nlight = function (nlightSpec) {
 			"windDown" : bulbStates.on5 // 11:30 pm
 		};
 
+		var sleepingActions = {
+			// earth cycle
+			"zeros" : bulbStates.off,
+		    "nadir" : bulbStates.off,
+		    "nightEnd" : bulbStates.off,
+		    "nauticalDawn" : bulbStates.off,
+		    "dawn" : bulbStates.off,
+		    "sunrise" : bulbStates.off,
+		    "sunriseEnd" : bulbStates.off,
+		    "goldenHourEnd" : bulbStates.off,
+		    "solarNoon" : bulbStates.off,
+		    "goldenHour" : bulbStates.on40,
+		    "sunsetStart" : bulbStates.on40,
+		    "sunset" : bulbStates.on40,
+		    "dusk" : bulbStates.on60,
+		    "nauticalDusk" : bulbStates.on70,
+		    "night" : bulbStates.on80,
+		    "midnight" : bulbStates.off,
+
+		    // family cycle past night
+			"postDinner" : bulbStates.on40, // 9:30 pm
+			"kidsInBed" : bulbStates.on20,  // 10:00 pm
+			"cruising" : bulbStates.on10, // 11:00 pm
+			"windDown" : bulbStates.on5 // 11:30 pm
+		};
+
 		function momentEvent (cMoment) {
 			console.log(self.id + "-" + self.name + " responded to " + cMoment.name + " with action:");
-			console.log(JSON.stringify(actions[cMoment.name], null, 2));
 
-			hueApi.setLightState(self.id, actions[cMoment.name], function (err, result) {
+			var action = livingActions[cMoment.name];
+			if (self.name === 'bedroom') {
+				action = sleepingActions[cMoment.name];
+			}
+
+			console.log(JSON.stringify(action, null, 2));
+			hueApi.setLightState(self.id, action, function (err, result) {
 				console.log("setLightStateCallback " + self.id + "-" + self.name + "err: " + err + " result: " + result);
-			})
+			});				
 		}
 
 		function subscribeToMoments() {
